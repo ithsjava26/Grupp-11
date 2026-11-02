@@ -3,20 +3,32 @@ package com.example.combat;
 public abstract class GameCharacter {
 
     private final String name;
-    private final int maxHealth;
+    private int maxHealth;
     private int currentHealth;
+    private int baseDamage;
 
-    protected GameCharacter(String name, int maxHealth) {
+    protected GameCharacter(String name, int maxHealth, int currentHealth, int baseDamage) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Invalid name, must not be empty");
         }
         if (maxHealth <= 0) {
-            throw new IllegalArgumentException("Invalid max health, must be more than 0");
+            throw new IllegalArgumentException("Invalid max health, must be positive and more than 0");
+        }
+        if (currentHealth <= 0 || currentHealth > maxHealth) {
+            throw new IllegalArgumentException("Invalid current health, must be positive, more than 0 and not more than maxHealth");
+        }
+        if (baseDamage <= 0) {
+            throw new IllegalArgumentException("Invalid base damage, must be positive and more than 0");
         }
 
         this.name = name;
         this.maxHealth = maxHealth;
-        this.currentHealth = maxHealth;
+        this.currentHealth = currentHealth;
+        this.baseDamage = baseDamage;
+    }
+
+    protected GameCharacter(String name, int maxHealth, int baseDamage) {
+        this(name, maxHealth, maxHealth, baseDamage);
     }
 
 
@@ -31,6 +43,12 @@ public abstract class GameCharacter {
     public int getCurrentHealth() {
         return currentHealth;
     }
+
+    public int getBaseDamage() {
+        return baseDamage;
+    }
+
+    public abstract int getAttackDamage();
 
     public boolean isAlive() {
         return getCurrentHealth() > 0;
@@ -49,4 +67,13 @@ public abstract class GameCharacter {
         }
         currentHealth = Math.min(currentHealth + healAmount, maxHealth);
     }
+
+    protected void increaseMaxHealth(int amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Invalid amount, cannot be negative or zero");
+        }
+        maxHealth += amount;
+        currentHealth += amount;
+    }
+
 }
