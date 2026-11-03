@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   build:
-
+    name: Java CI with Maven
     runs-on: ubuntu-latest
 
     steps:
