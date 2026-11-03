@@ -19,7 +19,7 @@ public class Hero extends GameCharacter {
     }
 
     public void levelUp() {
-        increaseLevel();
         increaseMaxHealth(HEALTH_PER_LEVEL);
+        increaseLevel();
     }
 }
