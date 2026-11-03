@@ -81,6 +81,10 @@ public abstract class GameCharacter {
         if (amount <= 0) {
             throw new IllegalArgumentException("Invalid amount, cannot be negative or zero");
         }
+        if (maxHealth > Integer.MAX_VALUE - amount || currentHealth > Integer.MAX_VALUE - amount) {
+            throw new ArithmeticException("Health overflow");
+        }
+
         maxHealth += amount;
         currentHealth += amount;
     }
