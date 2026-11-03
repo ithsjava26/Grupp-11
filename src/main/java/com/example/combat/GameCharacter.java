@@ -1,6 +1,10 @@
 package com.example.combat;
 
+import java.util.Objects;
+
 public abstract class GameCharacter {
+
+    private AttackStrategy attackStrategy = new MeleeAttack();
 
     private final String name;
     private int maxHealth;
@@ -36,6 +40,14 @@ public abstract class GameCharacter {
         this(name, level, maxHealth, maxHealth, baseDamage);
     }
 
+    // Abstract methods
+    public abstract int getAttackDamage();
+
+
+    // Get methods
+    public AttackStrategy getAttackStrategy() {
+        return attackStrategy;
+    }
 
     public String getName() {
         return name;
@@ -57,7 +69,12 @@ public abstract class GameCharacter {
         return baseDamage;
     }
 
-    public abstract int getAttackDamage();
+    // Set methods
+    public void setAttackStrategy(AttackStrategy attackStrategy) {
+        this.attackStrategy = Objects.requireNonNull(attackStrategy, "Attack strategy must not be null");
+    }
+
+    // Other methods
 
     public boolean isAlive() {
         return getCurrentHealth() > 0;
@@ -74,7 +91,7 @@ public abstract class GameCharacter {
         if (healAmount < 0) {
             throw new IllegalArgumentException("Invalid healAmount, cannot be negative");
         }
-        currentHealth = Math.min(currentHealth + healAmount, maxHealth);
+        currentHealth += Math.min(healAmount, maxHealth - currentHealth);
     }
 
     protected void increaseMaxHealth(int amount) {
