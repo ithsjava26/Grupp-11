@@ -6,10 +6,14 @@ public abstract class GameCharacter {
     private int maxHealth;
     private int currentHealth;
     private int baseDamage;
+    private int level;
 
-    protected GameCharacter(String name, int maxHealth, int currentHealth, int baseDamage) {
+    protected GameCharacter(String name, int level, int maxHealth, int currentHealth, int baseDamage) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Invalid name, must not be empty");
+        }
+        if (level <= 0) {
+            throw new IllegalArgumentException("Level cannot be negative or zero");
         }
         if (maxHealth <= 0) {
             throw new IllegalArgumentException("Invalid max health, must be positive and more than 0");
@@ -22,18 +26,23 @@ public abstract class GameCharacter {
         }
 
         this.name = name;
+        this.level = level;
         this.maxHealth = maxHealth;
         this.currentHealth = currentHealth;
         this.baseDamage = baseDamage;
     }
 
-    protected GameCharacter(String name, int maxHealth, int baseDamage) {
-        this(name, maxHealth, maxHealth, baseDamage);
+    protected GameCharacter(String name, int level, int maxHealth, int baseDamage) {
+        this(name, level, maxHealth, maxHealth, baseDamage);
     }
 
 
     public String getName() {
         return name;
+    }
+
+    public int getLevel() {
+        return level;
     }
 
     public int getMaxHealth() {
@@ -74,6 +83,10 @@ public abstract class GameCharacter {
         }
         maxHealth += amount;
         currentHealth += amount;
+    }
+
+    protected void increaseLevel() {
+        level++;
     }
 
 }
