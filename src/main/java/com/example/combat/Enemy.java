@@ -12,6 +12,10 @@ public class Enemy extends GameCharacter {
         this(name, level, type, maxHealth, maxHealth, baseDamage);
     }
 
+    public Enemy(String name, int level, EnemyType type) {
+        this(name, level, type, type.getHealth(level), type.getDamage(level));
+    }
+
     public EnemyType getType() {
         return type;
     }

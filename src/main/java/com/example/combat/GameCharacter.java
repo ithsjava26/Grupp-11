@@ -11,6 +11,7 @@ public abstract class GameCharacter {
     private int currentHealth;
     private int baseDamage;
     private int level;
+    private int healBlockedTurns = 0;
 
     protected GameCharacter(String name, int level, int maxHealth, int currentHealth, int baseDamage) {
         if (name == null || name.isBlank()) {
@@ -39,6 +40,7 @@ public abstract class GameCharacter {
     protected GameCharacter(String name, int level, int maxHealth, int baseDamage) {
         this(name, level, maxHealth, maxHealth, baseDamage);
     }
+
 
     // Abstract methods
     public abstract int getAttackDamage();
@@ -69,15 +71,34 @@ public abstract class GameCharacter {
         return baseDamage;
     }
 
+    public int getHealBlockedTurns() {
+        return healBlockedTurns;
+    }
+
+
     // Set methods
     public void setAttackStrategy(AttackStrategy attackStrategy) {
         this.attackStrategy = Objects.requireNonNull(attackStrategy, "Attack strategy must not be null");
     }
 
+
     // Other methods
+    public void blockHealing(int turns) {
+        healBlockedTurns = Math.max(healBlockedTurns, turns);
+    }
+
+    public void onTurnEnd() {
+        if (healBlockedTurns > 0) {
+            healBlockedTurns--;
+        }
+    }
 
     public boolean isAlive() {
         return getCurrentHealth() > 0;
+    }
+
+    public boolean canHeal() {
+        return healBlockedTurns == 0;
     }
 
     public void takeDamage(int damageAmount) {
@@ -87,11 +108,15 @@ public abstract class GameCharacter {
         currentHealth = Math.max(0, currentHealth - damageAmount);
     }
 
-    public void heal(int healAmount) {
+    public boolean heal(int healAmount) {
+        if (!canHeal()) {
+            return false;
+        }
         if (healAmount < 0) {
             throw new IllegalArgumentException("Invalid healAmount, cannot be negative");
         }
-        currentHealth += Math.min(healAmount, maxHealth - currentHealth);
+        currentHealth = Math.min(maxHealth, currentHealth + healAmount);
+        return true;
     }
 
     protected void increaseMaxHealth(int amount) {
