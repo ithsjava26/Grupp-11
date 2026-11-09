@@ -59,4 +59,22 @@ public class Printer {
         IO.println("");
         Printer.printHealth(hero);
     }
+
+    public static String getMenuOptions(GameCharacter hero) {
+        String healOption = hero.canHeal() ? "Heal (20% max health)" : Printer.setGreyString("Heal (20% max health)") + "(" + hero.getHealBlockedTurns() + " turns left)";
+
+        return """
+                1) Melee Attack (1.2x dmg)
+                2) Ranged Attack (1.0x dmg)
+                3) Magic Attack (0.8x dmg)
+            
+                4) %s
+            
+                5) Flee
+                """.formatted(healOption);
+    }
+
+    private static String setGreyString(String str) {
+        return "\u001B[90m" + str + "\u001B[0m ";
+    }
 }

@@ -11,16 +11,7 @@ public class Main {
             q) Quit
             """;
 
-    private static final String MENU_OPTIONS = """
-            1) Melee Attack (1.2x dmg)
-            2) Ranged Attack (1.0x dmg)
-            3) Magic Attack (0.8x dmg)
-            
-            4) Heal (20% max health)
-            
-            5) Flee
-            """;
-
+    private static final int HEAL_COOLDOWN_TURNS = 4;
 
     static void main() {
         startMenu();
@@ -99,9 +90,11 @@ public class Main {
             Printer.printHealth(hero);
  
             if (!enemy.isAlive()) {
+                hero.onTurnEnd();
                 return Outcome.WON;
             }
             if (!hero.isAlive()) {
+                hero.onTurnEnd();
                 return Outcome.LOST;
             }
 
@@ -109,6 +102,7 @@ public class Main {
                 Printer.printDivider();
             }
             if (!heroTurn) {
+                hero.onTurnEnd();
                 round++;
             }
             heroTurn = !heroTurn;
@@ -118,24 +112,31 @@ public class Main {
 
     // --- Action ---
     private static boolean heroAction(Hero hero, GameCharacter enemy) {
-        IO.println();
-        IO.println(MENU_OPTIONS);
-        int choice = getInput(1, 5);
-        switch (choice) {
-            case 1 -> attackOption(hero, new MeleeAttack(), enemy);
-            case 2 -> attackOption(hero, new RangedAttack(), enemy);
-            case 3 -> attackOption(hero, new MagicAttack(), enemy);
-            case 4 -> {
-                int amount = (int) Math.round(hero.getMaxHealth() * 0.2);
-                hero.heal(amount);
-                IO.println();
-                IO.println("  » %s heals for up to %d health.".formatted(hero.getName(), amount));
+        while (true) {
+            IO.println();
+            IO.println(Printer.getMenuOptions(hero));
+            int choice = getInput(1, 5);
+
+            switch (choice) {
+                case 1 -> attackOption(hero, new MeleeAttack(), enemy);
+                case 2 -> attackOption(hero, new RangedAttack(), enemy);
+                case 3 -> attackOption(hero, new MagicAttack(), enemy);
+                case 4 -> {
+                    int amount = (int) Math.round(hero.getMaxHealth() * 0.2);
+                    if (!hero.heal(amount)) {
+                        IO.println("Could not use heal, " + hero.getHealBlockedTurns() + " turns left until available");
+                        continue;
+                    }
+                    hero.blockHealing(HEAL_COOLDOWN_TURNS);
+                    IO.println();
+                    IO.println("  » %s heals for up to %d health.".formatted(hero.getName(), amount));
+                }
+                case 5 -> {
+                    return false;
+                }
             }
-            case 5 -> {
-                return false;
-            }
+            return true;
         }
-        return true;
     }
 
     private static void attackOption(Hero hero, AttackStrategy attackStrategy, GameCharacter enemy) {
@@ -187,5 +188,4 @@ public class Main {
         String line = IO.readln();
         return line == null ? "q" : line.trim();
     }
-    //endregion
 }
