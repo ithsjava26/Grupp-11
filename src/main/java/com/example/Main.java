@@ -195,7 +195,7 @@ public class Main {
     private static int getInput(int min, int max) {
         while (true) {
             IO.print("> ");
-            String line = readLine();
+            String line = IO.readln().trim();
             try {
                 int input = Integer.parseInt(line);
                 if (input >= min && input <= max) {
