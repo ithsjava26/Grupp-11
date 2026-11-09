@@ -2,6 +2,8 @@ package com.example;
 
 import com.example.combat.*;
 
+import java.util.Random;
+
 public class Main {
 
     private enum Outcome { WON, LOST, FLED }
@@ -12,6 +14,7 @@ public class Main {
             """;
 
     private static final int HEAL_COOLDOWN_TURNS = 4;
+    private static final Random RANDOM = new Random();
 
     static void main() {
         startMenu();
@@ -29,6 +32,7 @@ public class Main {
     }
 
     private static void runGame() {
+        int killCount = 0;
         Hero hero = new Hero("Hero", 1, 100, 10);
  
         while (true) {
@@ -37,6 +41,7 @@ public class Main {
 
             switch (outcome) {
                 case WON -> {
+                    killCount++;
                     IO.println();
                     IO.println("  ★ You have killed " + enemy.getName() + "! Going to the next enemy...");
                     Printer.printDivider();
@@ -44,12 +49,14 @@ public class Main {
                 case LOST -> {
                     IO.println();
                     IO.println("  ✖ You have died!");
+                    IO.println("  ☠ You have killed " + killCount + " enemies");
                     IO.println();
                     return;
                 }
                 case FLED -> {
                     IO.println();
                     IO.println("  You fled from the battle.");
+                    IO.println("  ☠ You have killed " + killCount + " enemies");
                     IO.println();
                     return;
                 }
@@ -60,8 +67,24 @@ public class Main {
 
     // --- Combat ---
     private static Enemy spawnEnemy() {
-        // TODO: Add random enemy spawn
-        return new Enemy("Goblin", 1, EnemyType.GOBLIN);
+        EnemyType enemyType = randomEnemyType();
+        return new Enemy(enemyType.getDisplayName(), 1, enemyType);
+    }
+
+    private static EnemyType randomEnemyType() {
+        int totalWeight = 0;
+        for (EnemyType enemyType : EnemyType.values()) {
+            totalWeight += enemyType.getSpawnWeight();
+        }
+
+        int randomWeight = RANDOM.nextInt(totalWeight);
+        for (EnemyType enemyType : EnemyType.values()) {
+            randomWeight -= enemyType.getSpawnWeight();
+            if (randomWeight < 0) {
+                return enemyType;
+            }
+        }
+        throw new IllegalStateException("No enemy type selected");
     }
 
     private static Outcome fight(Hero hero, Enemy enemy) {
